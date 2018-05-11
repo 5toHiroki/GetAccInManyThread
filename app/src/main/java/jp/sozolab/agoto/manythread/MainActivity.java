@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Calendar;
+import java.util.Random;
 
 import jp.sozolab.agoto.manythread.R;
 
@@ -283,7 +284,10 @@ class MyThread extends Thread{
 //        @Override
 //        public void run(int i){
     //        while (true) {
-                Log.d("Thread", toString().valueOf(threadName) + " : " + i);
+                Random rand = new Random();
+                int randomNumber = rand.nextInt(11) + 1;
+                long x = 1000%randomNumber;
+                Log.d("Thread", toString().valueOf(threadName) + " : " + i + " : " + x);
     //        }
 //        }
     }
