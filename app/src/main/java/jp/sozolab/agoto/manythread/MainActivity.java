@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     private long lastTime;//時間計測
     private File file;
     private boolean isActiveSensor;
+    public long a,b,c,d = 0;
+
 
     private String getFileName() {
         final Calendar calendar = Calendar.getInstance();
@@ -74,7 +76,8 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 //            @Override
 //            public void run() {
 //                while (true) {//繰り返す
-//                    Log.d("Thread", "aho");//logに表示する
+//                    new MyThread(i).start();
+//                    i++;
 //                }
 //            }
 //        }).start();
@@ -93,10 +96,50 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 TextView textView = (TextView) findViewById(R.id.text_info);
                 if (isButtonActive == true) {
                     textView.setText("Now collecting");
-
                 } else{
                     textView.setText("Not collect");
                 }
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (isActiveSensor) {//繰り返す
+                            new MyThread(a,1).start();
+                            a++;
+                        }
+                    }
+                }).start();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (isActiveSensor) {//繰り返す
+                            new MyThread(b,2).start();
+                            b++;
+                        }
+                    }
+                }).start();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (isActiveSensor) {//繰り返す
+                            new MyThread(c,3).start();
+                            c++;
+                        }
+                    }
+                }).start();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (isActiveSensor) {//繰り返す
+                            new MyThread(d,4).start();
+                            d++;
+                        }
+                    }
+                }).start();
+
             }
         });
     }
@@ -233,17 +276,15 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 
 }   //メインスレッド終了
 
-//class MyThread extends Thread{
-//
-//    public MyThread(int i){
+class MyThread extends Thread{
+    public MyThread(long i,int threadName){
 //        this.i = i;
-//    }
-//    int i;
 
-//    public void run(){
-//        while (true) {
-//            Log.d("Thread", ""+i);
+//        @Override
+//        public void run(int i){
+    //        while (true) {
+                Log.d("Thread", toString().valueOf(threadName) + " : " + i);
+    //        }
 //        }
-
-//    }
-//}
+    }
+}
