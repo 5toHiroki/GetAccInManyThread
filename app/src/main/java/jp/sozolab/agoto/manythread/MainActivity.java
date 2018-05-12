@@ -3,6 +3,8 @@
 ・加速度の取得
 ・スレッドの複製
 ・ログへの記録→SDへの保存
+
+計測開始と終了時刻をSD内に書き込む
 */
 package jp.sozolab.agoto.manythread;//adress
 
@@ -38,7 +40,8 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     private long lastTime;//時間計測
     private File file;
     private boolean isActiveSensor;
-    public long a,b,c,d = 0;
+    public long a,b,c,d,e,f,g,h = 0;
+    boolean timewrite = false;
 
 
     private String getFileName() {
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 //            }
 //        }).start();
 
+
 //        for (int i = 0;i < 10; ++i){
 //            new MyThread(i).start();
 //        }
@@ -97,53 +101,135 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 TextView textView = (TextView) findViewById(R.id.text_info);
                 if (isButtonActive == true) {
                     textView.setText("Now collecting");
-                } else{
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run () {
+                            while (isActiveSensor) {//繰り返す
+                                new MyThread(a,1).start();
+                                a++;
+                                new MyThread(b,2).start();
+                                b++;
+                                new MyThread(c,3).start();
+                                c++;
+                                new MyThread(d,4).start();
+                                d++;
+                                new MyThread(e,5).start();
+                                e++;
+                                new MyThread(f,6).start();
+                                f++;
+                                new MyThread(g,7).start();
+                                g++;
+                                new MyThread(h,8).start();
+                                h++;
+//                                Log.d("thread","test thread ok");
+                            }
+                        }
+                    }).start();
+
+                } else {
                     textView.setText("Not collect");
+//                    if(isActiveSensor == false && timewrite == true){
+                        try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
+                             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
+                             BufferedWriter bw = new BufferedWriter(outputStreamWriter);
+                        ) { bw.write(getFileName() + "\n");
+                            bw.flush();
+                            Log.d("thread", "can write time" );// デバッグ
+                            bw.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.d("thread", "can not write time" );// デバッグ
+                        }
+
+                        timewrite = false;
+
+//                    }
                 }
+//スレッド増加用
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(a,1).start();
+//                            a++;
+//                        }
+//                    }
+//                }).start();
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (isActiveSensor) {//繰り返す
-                            new MyThread(a,1).start();
-                            a++;
-                        }
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(b,2).start();
+//                            b++;
+//                        }
+//                    }
+//                }).start();
+//
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(c,3).start();
+//                            c++;
+//                        }
+//                    }
+//                }).start();
+//
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(d,4).start();
+//                            d++;
+//                        }
+//                    }
+//                }).start();
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (isActiveSensor) {//繰り返す
-                            new MyThread(b,2).start();
-                            b++;
-                        }
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(e,5).start();
+//                            e++;
+//                        }
+//                    }
+//                }).start();
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (isActiveSensor) {//繰り返す
-                            new MyThread(c,3).start();
-                            c++;
-                        }
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(f,6).start();
+//                            f++;
+//                        }
+//                    }
+//                }).start();
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (isActiveSensor) {//繰り返す
-                            new MyThread(d,4).start();
-                            d++;
-                        }
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(g,7).start();
+//                            g++;
+//                        }
+//                    }
+//                }).start();
 
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isActiveSensor) {//繰り返す
+//                            new MyThread(h,8).start();
+//                            h++;
+//                        }
+//                    }
+//                }).start();
             }
         });
     }
+
 
     @Override
     protected void onResume() {
@@ -199,8 +285,10 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 }
 
                 lastTime = nowTime;
+                timewrite = true;
             }
         }
+
     }
 
     @Override
@@ -279,16 +367,9 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 
 class MyThread extends Thread{
     public MyThread(long i,int threadName){
-//        this.i = i;
-
-//        @Override
-//        public void run(int i){
-    //        while (true) {
                 Random rand = new Random();
                 int randomNumber = rand.nextInt(11) + 1;
-                long x = 1000%randomNumber;
+                long x = 100000000%randomNumber;
                 Log.d("Thread", toString().valueOf(threadName) + " : " + i + " : " + x);
-    //        }
-//        }
     }
 }
