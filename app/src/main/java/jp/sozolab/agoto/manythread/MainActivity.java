@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     private long lastTime;//時間計測
     private File file;
     boolean isActiveSensor;
-    boolean timewrite = false;
     private List<Thread> threads;
 
     private String getFileName() {
@@ -95,6 +94,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                     threads = null;
                     textView.setText("Not collect");
 
+                    //データ終了時間をファイルに書き込み
                     try (FileOutputStream fileOutputStream = new FileOutputStream(oldFile, true);
                          OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
                          BufferedWriter bw = new BufferedWriter(outputStreamWriter);) {
@@ -106,8 +106,6 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                         e.printStackTrace();
                         Log.d("thread", "don't finish write endtime" );// デバッグ
                     }
-
-                    timewrite = false;
                 }
             }
         });
@@ -170,7 +168,6 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 }
                 count++;
                 Log.d("test write acc", String.valueOf(count));
-                timewrite = true;
             }
         }
 
