@@ -5,6 +5,8 @@
 ・ログへの記録→SDへの保存
 
 計測開始と終了時刻をSD内に書き込む
+//ファイルに書き込むリソースを使い込むことで欠損を発生させる
+//低消費電力モードにするとどうか？
 */
 package jp.sozolab.agoto.manythread;//adress
 
@@ -41,8 +43,12 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     private SensorManager sensorManager;//
     private long lastTime;//時間計測
     private File file;
-    boolean isActiveSensor;
-    private List<Thread> threads;
+    boolean isActiveSensor;//センサ値取得の切り替え
+    private List<Thread> threads;//スレッド管理用
+    private int count = 0;//加速度の書き込み回数
+
+    /*======負荷有り；true 負荷なし；false======*/
+    private boolean makethread = false;
 
     private String getFileName() {
         final Calendar calendar = Calendar.getInstance();
@@ -68,7 +74,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
         super.onCreate(savedInstanceState);//
         setContentView(R.layout.activity_main);// R.layout　resのlayout
         lastTime = System.nanoTime();//時間計測
-        file = new File(getFileName());//SD用のfile名
+        file = new File(getFileName());//加速度用のSDのfile名
 
         // Get an instance of the SensorManager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -84,11 +90,14 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 if (isButtonActive == true) {
                     textView.setText("Now collecting");
 
+                    //負荷スレッド作成
                     threads = new ArrayList<Thread>();
-                    for (int i = 8; i != 0; --i) {
-                        Thread t = new Thread(new MyThread(i));
-                        t.start();
-                        threads.add(t);
+                    if(makethread){
+                        for (int i = 8; i != 0; --i) {
+                            Thread t = new Thread(new MyThread(i));
+                            t.start();
+                            threads.add(t);
+                        }
                     }
                 } else {
                     threads = null;
@@ -133,8 +142,6 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
         sensorManager.unregisterListener(this);
     }
 
-    private int count = 0;
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isActiveSensor) {
@@ -167,7 +174,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 //デバッグ                    Log.d("thread", "can not write" );
                 }
                 count++;
-                Log.d("test write acc", String.valueOf(count));
+                Log.d("number of writing acc", String.valueOf(count));
             }
         }
 
@@ -177,9 +184,6 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     } //中身なし
-
-//ファイルに書き込むリソースを使い込むことで欠損を発生させる
-//低消費電力モードにするとどうか？
 
     // （お好みで）加速度センサーの各種情報を表示
    private void showInfo(SensorEvent event){
@@ -245,7 +249,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 //        textInfo.setText(info);
     } //中身なし
 
-    //負荷パート
+    //負荷スレッド
     class MyThread implements Runnable{
         private File file;
         private String threadName;
