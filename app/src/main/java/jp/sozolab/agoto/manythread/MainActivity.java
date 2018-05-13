@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     private SensorManager sensorManager;//
 //    private TextView textInfo, textView;//
     private long lastTime;//時間計測
-    private File file;
+    public File file;
     private boolean isActiveSensor;
     public long a,b,c,d,e,f,g,h = 0;
     boolean timewrite = false;
@@ -102,30 +102,31 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 if (isButtonActive == true) {
                     textView.setText("Now collecting");
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run () {
-                            while (isActiveSensor) {//繰り返す
-                                new MyThread(a,1).start();
-                                a++;
-                                new MyThread(b,2).start();
-                                b++;
-                                new MyThread(c,3).start();
-                                c++;
-                                new MyThread(d,4).start();
-                                d++;
-                                new MyThread(e,5).start();
-                                e++;
-                                new MyThread(f,6).start();
-                                f++;
-                                new MyThread(g,7).start();
-                                g++;
-                                new MyThread(h,8).start();
-                                h++;
-//                                Log.d("thread","test thread ok");
-                            }
-                        }
-                    }).start();
+//                    //負荷パート//
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run () {
+//                            while (isActiveSensor) {//繰り返す
+//                                new MyThread(a,1).start();
+//                                a++;
+//                                new MyThread(b,2).start();
+//                                b++;
+//                                new MyThread(c,3).start();
+//                                c++;
+//                                new MyThread(d,4).start();
+//                                d++;
+//                                new MyThread(e,5).start();
+//                                e++;
+//                                new MyThread(f,6).start();
+//                                f++;
+//                                new MyThread(g,7).start();
+//                                g++;
+//                                new MyThread(h,8).start();
+//                                h++;
+//////                                Log.d("thread","test thread ok");
+//                            }
+//                        }
+//                    }).start();
 
                 } else {
                     textView.setText("Not collect");
@@ -238,8 +239,8 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
         Sensor accel = sensorManager.getDefaultSensor(
                 Sensor.TYPE_ACCELEROMETER);
 
-        sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_NORMAL);//?
-        //sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_FASTEST);
+        //sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_NORMAL);//?
+        sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_FASTEST);
         //sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_GAME);
         //sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_UI);
     }
@@ -251,6 +252,8 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
         // Listenerを解除
         sensorManager.unregisterListener(this);
     }
+
+    private int count = 0;
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -283,7 +286,8 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                     e.printStackTrace();
 //デバッグ                    Log.d("thread", "can not write" );
                 }
-
+                count++;
+                Log.d("test write acc", String.valueOf(count));
                 lastTime = nowTime;
                 timewrite = true;
             }
@@ -365,11 +369,28 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 
 }   //メインスレッド終了
 
+ //負荷パート
 class MyThread extends Thread{
+    public File file;
+
     public MyThread(long i,int threadName){
-                Random rand = new Random();
-                int randomNumber = rand.nextInt(11) + 1;
-                long x = 100000000%randomNumber;
-                Log.d("Thread", toString().valueOf(threadName) + " : " + i + " : " + x);
+        Random rand = new Random();
+        int randomNumber = rand.nextInt(11) + 1;
+        long x = 100000000%randomNumber;
+        Log.d("thread",toString().valueOf(threadName) + " : " + i + " : " + x);
+
+        file = new File(Environment.getExternalStorageDirectory().getPath() +
+                "/" + "DICOMO_Acc_data" + "/" + "trush" +
+                "/" + toString().valueOf(threadName));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
+             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
+             BufferedWriter bw = new BufferedWriter(outputStreamWriter);
+        ) { bw.write(toString().valueOf(threadName) + " : " + i + " : " + x);
+            bw.flush();
+            Log.d("thread", "can write otherthread" );// デバッグ
+            bw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
