@@ -43,12 +43,12 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     private SensorManager sensorManager;//
     private long lastTime;//時間計測
     private File file;
-    boolean isActiveSensor;//センサ値取得の切り替え
+    volatile boolean isActiveSensor;//センサ値取得の切り替え
     private List<Thread> threads;//スレッド管理用
     private int count = 0;//加速度の書き込み回数
 
     /*======負荷有り；true 負荷なし；false======*/
-    private boolean makethread = false;
+    private boolean makethread = true;
 
     private String getFileName() {
         final Calendar calendar = Calendar.getInstance();
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                     //負荷スレッド作成
                     threads = new ArrayList<Thread>();
                     if(makethread){
-                        for (int i = 8; i != 0; --i) {
+                        for (int i = 13; i != 0; --i) {
                             Thread t = new Thread(new MyThread(i));
                             t.start();
                             threads.add(t);
