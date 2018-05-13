@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ThemedSpinnerAdapter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +28,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import jp.sozolab.agoto.manythread.R;
@@ -36,13 +39,11 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
         implements SensorEventListener {
 
     private SensorManager sensorManager;//
-//    private TextView textInfo, textView;//
     private long lastTime;//時間計測
-    public File file;
-    private boolean isActiveSensor;
-    public long a,b,c,d,e,f,g,h = 0;
+    private File file;
+    boolean isActiveSensor;
     boolean timewrite = false;
-
+    private List<Thread> threads;
 
     private String getFileName() {
         final Calendar calendar = Calendar.getInstance();
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        threads = null;
         isActiveSensor = false;
         super.onCreate(savedInstanceState);//
         setContentView(R.layout.activity_main);// R.layout　resのlayout
@@ -71,162 +73,42 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 
         // Get an instance of the SensorManager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//        textInfo = (TextView) findViewById(R.id.text_info);
-        // Get an instance of the TextView
-//        textView = (TextView) findViewById(R.id.text_view);
-
-        //スレッド　インスタンス作成
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (true) {//繰り返す
-//                    new MyThread(i).start();
-//                    i++;
-//                }
-//            }
-//        }).start();
-
-
-//        for (int i = 0;i < 10; ++i){
-//            new MyThread(i).start();
-//        }
 
         CompoundButton buttonRead = (CompoundButton) findViewById(R.id.toggleButton);
         buttonRead.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isButtonActive) {
-//                getFileName();
+                File oldFile = file;
                 file = new File(getFileName());
                 isActiveSensor = isButtonActive;
                 TextView textView = (TextView) findViewById(R.id.text_info);
                 if (isButtonActive == true) {
                     textView.setText("Now collecting");
 
-//                    //負荷パート//
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run () {
-//                            while (isActiveSensor) {//繰り返す
-//                                new MyThread(a,1).start();
-//                                a++;
-//                                new MyThread(b,2).start();
-//                                b++;
-//                                new MyThread(c,3).start();
-//                                c++;
-//                                new MyThread(d,4).start();
-//                                d++;
-//                                new MyThread(e,5).start();
-//                                e++;
-//                                new MyThread(f,6).start();
-//                                f++;
-//                                new MyThread(g,7).start();
-//                                g++;
-//                                new MyThread(h,8).start();
-//                                h++;
-//////                                Log.d("thread","test thread ok");
-//                            }
-//                        }
-//                    }).start();
-
+                    threads = new ArrayList<Thread>();
+                    for (int i = 8; i != 0; --i) {
+                        Thread t = new Thread(new MyThread(i));
+                        t.start();
+                        threads.add(t);
+                    }
                 } else {
+                    threads = null;
                     textView.setText("Not collect");
-//                    if(isActiveSensor == false && timewrite == true){
-                        try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
-                             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
-                             BufferedWriter bw = new BufferedWriter(outputStreamWriter);
-                        ) { bw.write(getFileName() + "\n");
-                            bw.flush();
-                            Log.d("thread", "can write time" );// デバッグ
-                            bw.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.d("thread", "can not write time" );// デバッグ
-                        }
 
-                        timewrite = false;
+                    try (FileOutputStream fileOutputStream = new FileOutputStream(oldFile, true);
+                         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
+                         BufferedWriter bw = new BufferedWriter(outputStreamWriter);) {
+                        bw.write(getFileName() + "\n");
+                        bw.flush();
+                        Log.d("thread", "finished writing endtime" );// デバッグ
+                        bw.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.d("thread", "don't finish write endtime" );// デバッグ
+                    }
 
-//                    }
+                    timewrite = false;
                 }
-//スレッド増加用
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(a,1).start();
-//                            a++;
-//                        }
-//                    }
-//                }).start();
-
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(b,2).start();
-//                            b++;
-//                        }
-//                    }
-//                }).start();
-//
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(c,3).start();
-//                            c++;
-//                        }
-//                    }
-//                }).start();
-//
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(d,4).start();
-//                            d++;
-//                        }
-//                    }
-//                }).start();
-
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(e,5).start();
-//                            e++;
-//                        }
-//                    }
-//                }).start();
-
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(f,6).start();
-//                            f++;
-//                        }
-//                    }
-//                }).start();
-
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(g,7).start();
-//                            g++;
-//                        }
-//                    }
-//                }).start();
-
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        while (isActiveSensor) {//繰り返す
-//                            new MyThread(h,8).start();
-//                            h++;
-//                        }
-//                    }
-//                }).start();
             }
         });
     }
@@ -260,17 +142,16 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
         if (isActiveSensor) {
             //センサ値の定義
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                long nowTime = System.nanoTime();
                 float sensorX = event.values[0];
                 float sensorY = event.values[1];
                 float sensorZ = event.values[2];
-
-                long distance = nowTime - lastTime;
 
                 try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
                      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
                      BufferedWriter bw = new BufferedWriter(outputStreamWriter);
                 ) {
+                    long nowTime = System.nanoTime();
+                    long distance = nowTime - lastTime;
                     bw.write(String.valueOf(distance));
                     bw.write(',');
                     bw.write(String.valueOf(sensorX));
@@ -282,13 +163,13 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                     bw.flush();
 //デバッグ                    Log.d("thread", "can write" );
                     bw.close();
+                    lastTime = nowTime;
                 } catch (Exception e) {
                     e.printStackTrace();
 //デバッグ                    Log.d("thread", "can not write" );
                 }
                 count++;
                 Log.d("test write acc", String.valueOf(count));
-                lastTime = nowTime;
                 timewrite = true;
             }
         }
@@ -367,30 +248,35 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
 //        textInfo.setText(info);
     } //中身なし
 
-}   //メインスレッド終了
+    //負荷パート
+    class MyThread implements Runnable{
+        private File file;
+        private String threadName;
 
- //負荷パート
-class MyThread extends Thread{
-    public File file;
+        MyThread(int nameNumber) {
+            this.file = new File(Environment.getExternalStorageDirectory().getPath() +
+                    "/" + "DICOMO_Acc_data" + "/" + "trush" +
+                    "/" + String.valueOf(nameNumber));
+            this.threadName = String.valueOf(nameNumber);
+        }
 
-    public MyThread(long i,int threadName){
-        Random rand = new Random();
-        int randomNumber = rand.nextInt(11) + 1;
-        long x = 100000000%randomNumber;
-        Log.d("thread",toString().valueOf(threadName) + " : " + i + " : " + x);
-
-        file = new File(Environment.getExternalStorageDirectory().getPath() +
-                "/" + "DICOMO_Acc_data" + "/" + "trush" +
-                "/" + toString().valueOf(threadName));
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
-             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
-             BufferedWriter bw = new BufferedWriter(outputStreamWriter);
-        ) { bw.write(toString().valueOf(threadName) + " : " + i + " : " + x);
-            bw.flush();
-            Log.d("thread", "can write otherthread" );// デバッグ
-            bw.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        @Override
+        public void run() {
+            for (long i = 0; isActiveSensor; ++i) {
+                try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
+                     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, "UTF-8");
+                     BufferedWriter bw = new BufferedWriter(outputStreamWriter);
+                ) {
+                    bw.write(threadName + " : " + i);
+                    bw.flush();
+                    bw.close();
+                    Log.d("MyThread", "threadname:" + threadName + " 実行回数: " + i);// デバッグ
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-}
+
+}   //メインスレッド終了
+
