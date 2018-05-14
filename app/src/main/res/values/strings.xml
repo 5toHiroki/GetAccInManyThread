@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">manythread</string>
-    <string name="filename">acc_data.csv</string>
-    <string name="dirname">DICOMO_Acc_data</string>
+    <string name="filename">10_Fastest_mode.csv</string>
+    <string name="dirname">Production_DICOMO_max</string>
     <string name="buttonname">start</string>
 </resources>

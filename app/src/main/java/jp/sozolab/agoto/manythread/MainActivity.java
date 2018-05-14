@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                 File oldFile = file;
                 file = new File(getFileName());
                 isActiveSensor = isButtonActive;
+                
                 TextView textView = (TextView) findViewById(R.id.text_info);
                 if (isButtonActive == true) {
                     textView.setText("Now collecting");
@@ -93,8 +94,9 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
                     //負荷スレッド作成
                     threads = new ArrayList<Thread>();
                     if(makethread){
-                        for (int i = 13; i != 0; --i) {
+                        for (int i = 10; i != 0; --i) {
                             Thread t = new Thread(new MyThread(i));
+                            t.setPriority(Thread.MAX_PRIORITY);//スレッド優先度の変更
                             t.start();
                             threads.add(t);
                         }
@@ -253,6 +255,7 @@ public class MainActivity extends AppCompatActivity //メインスレッド開�
     class MyThread implements Runnable{
         private File file;
         private String threadName;
+
 
         MyThread(int nameNumber) {
             this.file = new File(Environment.getExternalStorageDirectory().getPath() +
